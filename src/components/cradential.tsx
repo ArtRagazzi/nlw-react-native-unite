@@ -1,7 +1,17 @@
 import { View, Text, Image, ImageBackground, TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons"
+import { colors } from "@/styles/colors";
+import { QRCode } from "@/components/qrcode";
 
 
-export function Credential() {
+type Props = {
+    image?: string
+    onChangeAvatar?: () => void
+    onShowQRCode?: ()=> void
+}
+
+
+export function Credential({ onChangeAvatar, image, onShowQRCode }: Props) {
     return (
         <View className="w-full self-stretch items-center">
             <Image source={require("@/assets/ticket/band.png")} className="w-24 h-52 z-10" />
@@ -19,11 +29,30 @@ export function Credential() {
                     <View className="w-40 h-40 bg-black rounded-full" />
                 </ImageBackground>
 
-                <Image
-                    source={{ uri: "https://github.com/Artragazzi.png" }}
-                    className="w-36 h-36 rounded-full -mt-24"
+                {image ? (
+                    <TouchableOpacity activeOpacity={0.8} onPressOut={onChangeAvatar}>
+                        <Image
+                            source={{ uri: image }}
+                            className="w-36 h-36 rounded-full -mt-24"
 
-                />
+                        />
+                    </TouchableOpacity>
+
+                ) : (
+                    <TouchableOpacity
+                        activeOpacity={0.9}
+                        className="w-36 h-36 rounded-full -mt-24 bg-gray-200 items-center justify-center"
+                        onPressOut={onChangeAvatar}>
+
+                        <Feather name="camera" color={colors.green[400]} size={32} />
+                    </TouchableOpacity>
+                )}
+
+
+
+
+
+
                 <Text className="font-bold text-2xl text-zinc-50 mt-4">
                     Artur Oliveira
                 </Text>
@@ -32,9 +61,9 @@ export function Credential() {
                     ao.raagzzi@gmail.com
                 </Text>
 
-                <Image source={require("@/assets/ticket/qrcode.png")} className="w-32 h-32" />
+               <QRCode value="a" size={120} />
 
-                <TouchableOpacity activeOpacity={0.7} className="mt-6">
+                <TouchableOpacity activeOpacity={0.7} className="mt-6" onPress={onShowQRCode}>
                     <Text className="font-body text-orange-500 text-sm">
                         Ampliar QRCODE
                     </Text>
