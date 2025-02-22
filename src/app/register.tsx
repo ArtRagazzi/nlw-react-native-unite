@@ -9,19 +9,51 @@ import { Button } from "@/components/button";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 
+import axios from "axios";
+import { api } from "@/server/api";
+
+const EVENT_ID = "9e9bd979-9d10-4915-b339-3786b1634f33"
+
 export default function Register() {
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
 
-    function handleAccessCredential() {
-        if (!name.trim()) {
-            return Alert.alert("Nome inválido", "Informe o seu nome!")
+    async function handleAccessCredential() {
+
+        try{
+            if (!name.trim()) {
+                return Alert.alert("Nome inválido", "Informe o seu nome!")
+            }
+            if (!email.trim()) {
+                return Alert.alert("E-mail inválido", "Informe o seu e-mail!")
+            }
+            setIsLoading(true)
+
+            const registerResponse = await api.post(`/events/${EVENT_ID}/attendees`, {name, email})
+
+            if(registerResponse.data.attendeeId){
+                Alert.alert("Inscrição", "Inscrição realizada com sucesso!", [
+                    {text: "OK", onPress:()=>{router.push("/ticket")}}, 
+                ])
+            }
+
+            
+        }catch(error){
+            console.log("Erro: ", error)
+
+            if(axios.isAxiosError(error)){
+                if(String(error.response?.data.message).includes("already registered")){
+                    return Alert.alert("Inscrição", "Este e-mail já está cadastrado!")
+                }
+            }
+
+            Alert.alert("Inscriçao", "Não foi possível fazer a inscrição")
+        }finally{
+            setIsLoading(false)
         }
-        if (!email.trim()) {
-            return Alert.alert("E-mail inválido", "Informe o seu e-mail!")
-        }
-        router.push("/ticket")
+        
     }
 
     return (
@@ -56,7 +88,7 @@ export default function Register() {
                     }} />
                 </Input>
 
-                <Button title="Realizar Inscrição" onPress={handleAccessCredential} />
+                <Button title="Realizar Inscrição" onPress={handleAccessCredential} isLoading={isLoading} />
                 <Link
                     href={"/"}
                     className="text-gray-100 text-base font-bold text-center mt-8"
