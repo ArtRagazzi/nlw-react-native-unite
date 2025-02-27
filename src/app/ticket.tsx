@@ -8,11 +8,14 @@ import { Button } from "@/components/button";
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker"
 import { QRCode } from "@/components/qrcode";
+import { useBadgeStore } from "@/store/badge-store"
+import { Redirect } from "expo-router";
 
 export default function Ticket() {
 
     const[image,setImage] = useState("")
     const [expandQRCode, setExpandQRCode] = useState<boolean>(false)
+    const badgeStore = useBadgeStore()
 
     async function handleSelectImage(){
         try{
@@ -38,7 +41,11 @@ export default function Ticket() {
 
 
 
-
+    if(!badgeStore.data?.checkInURL){
+        return(
+            <Redirect href="/"/>
+        )
+    }
 
     return (
         <View className="flex-1 bg-green-950">
@@ -66,7 +73,7 @@ export default function Ticket() {
                 </Text>
 
                 <Button title="Compartilhar"></Button>
-                <TouchableOpacity activeOpacity={0.7} className="mt-10">
+                <TouchableOpacity activeOpacity={0.7} className="mt-10" onPress={()=> badgeStore.remove()}>
                     <Text className="text-white text-base font-bold text-center">
                         Remover Ingresso
                     </Text>

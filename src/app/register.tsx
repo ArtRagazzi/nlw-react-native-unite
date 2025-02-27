@@ -12,6 +12,9 @@ import { useState } from "react";
 import axios from "axios";
 import { api } from "@/server/api";
 
+import { useBadgeStore } from "@/store/badge-store"
+
+
 const EVENT_ID = "9e9bd979-9d10-4915-b339-3786b1634f33"
 
 export default function Register() {
@@ -19,6 +22,7 @@ export default function Register() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const badgeStore = useBadgeStore()
 
     async function handleAccessCredential() {
 
@@ -34,6 +38,10 @@ export default function Register() {
             const registerResponse = await api.post(`/events/${EVENT_ID}/attendees`, {name, email})
 
             if(registerResponse.data.attendeeId){
+                const badgeResponse = await api.get(`/attendees/${registerResponse.data.attendeeId}/badge`)
+
+                badgeStore.save(badgeResponse.data.badge)
+                
                 Alert.alert("Inscrição", "Inscrição realizada com sucesso!", [
                     {text: "OK", onPress:()=>{router.push("/ticket")}}, 
                 ])
@@ -42,7 +50,7 @@ export default function Register() {
             
         }catch(error){
             console.log("Erro: ", error)
-
+            setIsLoading(false)
             if(axios.isAxiosError(error)){
                 if(String(error.response?.data.message).includes("already registered")){
                     return Alert.alert("Inscrição", "Este e-mail já está cadastrado!")
@@ -50,8 +58,6 @@ export default function Register() {
             }
 
             Alert.alert("Inscriçao", "Não foi possível fazer a inscrição")
-        }finally{
-            setIsLoading(false)
         }
         
     }
