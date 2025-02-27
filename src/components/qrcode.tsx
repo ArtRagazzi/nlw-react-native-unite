@@ -11,9 +11,6 @@ type Props = {
 
 export function QRCode(props:Props) {
 
-
-
-
     return (
         <QRCodeSVG value={props.value} size={props.size} color={colors.white} backgroundColor="transparent" />
 
